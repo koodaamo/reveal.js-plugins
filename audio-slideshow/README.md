@@ -118,7 +118,7 @@ Configuration options (under `Reveal.initialize({ subtitles: { ... } })`, or in 
 - `hideSubtitlesOnPause`: Optional boolean to clear subtitles on pause (default: `true`).
 
 
-Example subtitle-specific configuration:
+Example subtitle-specific configuration (per slide/fragment VTTs using `[INDEX]`):
 ```js
 Reveal.initialize({
   subtitles: {
