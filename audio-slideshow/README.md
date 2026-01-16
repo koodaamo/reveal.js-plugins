@@ -107,6 +107,38 @@ The plugin automatically extracts the text to be sent to the text-to-speech gene
 
 ```
 
+### Subtitle support
+
+Subtitles are provided via WebVTT tracks on each slide/fragment audio element.
+Each audio element gets its own subtitle track, so subtitles are expected to be per slide or fragment.
+
+Configuration options (under `Reveal.initialize({ subtitles: { ... } })`, or in `audio` for backward compatibility):
+- `subTitleURL`: Optional base URL for WebVTT subtitles. If it contains `[INDEX]`, it will be replaced with the slide indices (e.g. `0.0` or `2.1.3`).
+- `subTitleStyle`: Optional CSS for the subtitle display element. If no positioning is provided, it is placed above the audio controls.
+- `hideSubtitlesOnPause`: Optional boolean to clear subtitles on pause (default: `true`).
+
+
+Example subtitle-specific configuration:
+```js
+Reveal.initialize({
+  subtitles: {
+    subTitleURL: "subtitles/[INDEX].vtt",
+    subTitleStyle: "font-size: 20px; background: rgba(0,0,0,0.6);",
+    hideSubtitlesOnPause: true,
+  }
+});
+```
+
+Per slide/fragment override:
+- `data-audio-subtitle`: Optional WebVTT URL on a slide `<section>` or a `.fragment` element.
+
+Example override markup:
+```html
+<section data-audio-subtitle="subtitles/0.0.vtt">
+  <h2>Slide with custom subtitles</h2>
+</section>
+```
+
 ### Audio recording
 
 You can use the ```recorder.js``` plugin to record audio files for each slide and fragment.
