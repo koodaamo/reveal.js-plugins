@@ -51,6 +51,7 @@ const initAudioSlideshow = function (Reveal) {
   var hideSubtitlesOnPause = true; // hide subtitles when playback is paused
   var subtitleDisplay = null;
   var currentSubtitleTrack = null;
+  var pausedSubtitleCue = null;
   var hidePausedSubtitles = true;
 
   Reveal.addEventListener("fragmentshown", function (event) {
@@ -176,6 +177,7 @@ const initAudioSlideshow = function (Reveal) {
 
   function setCurrentSubtitleTrack(audioElement) {
     currentSubtitleTrack = audioElement ? audioElement._subtitleTrack : null;
+    pausedSubtitleCue = null;
     renderSubtitle(null, true);
     if (currentSubtitleTrack) {
       renderSubtitle(currentSubtitleTrack, false);
@@ -490,6 +492,7 @@ const initAudioSlideshow = function (Reveal) {
     }
     audioElement.addEventListener("ended", function (event) {
       // Guard against last cue lingering past media end due to rounding or VTT timing.
+      pausedSubtitleCue = null;
       renderSubtitle(null, true);
       if (typeof Recorder == "undefined" || !Recorder.isRecording) {
         // determine whether and when slideshow advances with next slide
@@ -537,6 +540,19 @@ const initAudioSlideshow = function (Reveal) {
         clearTimeout(timer);
         timer = null;
       }
+      if (hideSubtitlesOnPause && audioElement === currentAudio) {
+        // Restore the currently active cue when resuming playback.
+        if (
+          pausedSubtitleCue &&
+          audioElement.currentTime >= pausedSubtitleCue.startTime &&
+          audioElement.currentTime <= pausedSubtitleCue.endTime
+        ) {
+          renderSubtitleCue(pausedSubtitleCue);
+        } else {
+          renderSubtitle(currentSubtitleTrack, false);
+        }
+        pausedSubtitleCue = null;
+      }
     });
     audioElement.addEventListener("pause", function (event) {
       if (timer) {
@@ -545,6 +561,12 @@ const initAudioSlideshow = function (Reveal) {
       }
       if (hideSubtitlesOnPause) {
         // Avoid stale cues when pause doesn't trigger a final cuechange.
+        pausedSubtitleCue =
+          currentSubtitleTrack &&
+          currentSubtitleTrack.activeCues &&
+          currentSubtitleTrack.activeCues.length > 0
+            ? currentSubtitleTrack.activeCues[0]
+            : null;
         renderSubtitle(null, true);
       }
       document.dispatchEvent(new CustomEvent("stopplayback"));
@@ -656,18 +678,8 @@ const initAudioSlideshow = function (Reveal) {
     };
   }
 
-  function renderSubtitle(textTrack, forceClear) {
+  function renderSubtitleCue(cue) {
     if (!subtitleDisplay) return;
-    if (forceClear || !textTrack) {
-      subtitleDisplay.textContent = "";
-      subtitleDisplay.style.display = "none";
-      subtitleDisplay.style.opacity = "0";
-      return;
-    }
-    var cue =
-      textTrack.activeCues && textTrack.activeCues.length > 0
-        ? textTrack.activeCues[0]
-        : null;
     if (cue && cue.text) {
       subtitleDisplay.textContent = cue.text;
       subtitleDisplay.style.display = "block";
@@ -677,6 +689,19 @@ const initAudioSlideshow = function (Reveal) {
       subtitleDisplay.style.display = "none";
       subtitleDisplay.style.opacity = "0";
     }
+  }
+
+  function renderSubtitle(textTrack, forceClear) {
+    if (!subtitleDisplay) return;
+    if (forceClear || !textTrack) {
+      renderSubtitleCue(null);
+      return;
+    }
+    var cue =
+      textTrack.activeCues && textTrack.activeCues.length > 0
+        ? textTrack.activeCues[0]
+        : null;
+    renderSubtitleCue(cue);
   }
 
   function getPlaybackRate() {
