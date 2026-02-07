@@ -6,6 +6,12 @@ The first two numbers of the versioning scheme refer to the  version of `reveal.
 
 - ...
 
+## 4.7.1
+
+### New features
+
+- Subtitle support (webvtt)
+
 ## 4.2.4
 
 ### New features
