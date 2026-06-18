@@ -38,7 +38,7 @@ const initAudioSlideshow = function (Reveal) {
   var playerOpacity = 0.05; // opacity when the mouse is far from to the audioplayer
   var startAtFragment = false; // when moving to a slide, start at the current fragment or at the start of the slide
   var playerStyle =
-    "position: fixed; bottom: 4px; left: 25%; width: 50%; height:75px; z-index: 33;"; // style used for container of audio controls
+    "position: fixed; bottom: var(--r-controls-spacing); width: 60%; text-align: center; margin-right: 20%; margin-left: 20%; z-index: 33;"; // style used for container of audio controls
   // ------------------
 
   var silence;
@@ -471,7 +471,7 @@ const initAudioSlideshow = function (Reveal) {
     var audioElement = document.createElement("audio");
     audioElement.setAttribute(
       "style",
-      "position: relative; top: 20px; left: 10%; width: 80%;",
+      "position: relative; width: 100%;",
     );
     audioElement.id = "audioplayer-" + indices;
     audioElement.style.display = "none";
